@@ -2151,7 +2151,10 @@
 		}
 
 		function scheduleSending() {
-			window.setTimeout(sendAll, timerInterval);
+            var _this = this;
+			window.setTimeout(function () {
+                _this.sendAll();
+            }, timerInterval);
 		}
 
 		function xmlHttpErrorHandler() {
@@ -2219,6 +2222,8 @@
 				}
 			}
 		}
+
+        this.sendRequest = sendRequest;
 
 		this.append = function(loggingEvent) {
 			if (isSupported) {
@@ -2288,6 +2293,22 @@
 	};
 
 	log4javascript.AjaxAppender = AjaxAppender;
+    /* ---------------------------------------------------------------------- */
+    function RavenAppender() {};
+
+    RavenAppender.prototype = new AjaxAppender("http://somesentryurl.com");
+
+    RavenAppender.prototype.layout = new HttpPostDataLayout();
+
+    RavenAppender.prototype.toString = function() {
+        return "RavenAppender";
+    };
+
+    RavenAppender.prototype.sendRequest = function (postData, successCallback) {
+        console.log(postData);
+    };
+
+    log4javascript.RavenAppender = RavenAppender;
 	/* ---------------------------------------------------------------------- */
 	// PopUpAppender and InPageAppender related
 
