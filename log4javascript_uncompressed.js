@@ -2068,7 +2068,7 @@
 					// the response comes back
 					if (queuedRequests.length > 0) {
 						currentRequestBatch = queuedRequests.shift();
-						sendRequest(preparePostData(currentRequestBatch), sendAll);
+						this.sendRequest(preparePostData(currentRequestBatch), sendAll);
 					} else {
 						sending = false;
 						if (timed) {
@@ -2078,7 +2078,7 @@
 				} else {
 					// Rattle off all the requests without waiting to see the response
 					while ((currentRequestBatch = queuedRequests.shift())) {
-						sendRequest(preparePostData(currentRequestBatch));
+						this.sendRequest(preparePostData(currentRequestBatch));
 					}
 					sending = false;
 					if (timed) {
@@ -2245,7 +2245,7 @@
 					// If using a timer, the queue of requests will be processed by the
 					// timer function, so nothing needs to be done here.
 					if (!timed && (!waitForResponse || (waitForResponse && !sending))) {
-						sendAll();
+						this.sendAll();
 					}
 				}
 			}
