@@ -2068,7 +2068,7 @@
 					// the response comes back
 					if (queuedRequests.length > 0) {
 						currentRequestBatch = queuedRequests.shift();
-						this.sendRequest(preparePostData(currentRequestBatch), sendAll);
+						this.sendRequest(this.preparePostData(currentRequestBatch), sendAll);
 					} else {
 						sending = false;
 						if (timed) {
@@ -2078,7 +2078,7 @@
 				} else {
 					// Rattle off all the requests without waiting to see the response
 					while ((currentRequestBatch = queuedRequests.shift())) {
-						this.sendRequest(preparePostData(currentRequestBatch));
+						this.sendRequest(this.preparePostData(currentRequestBatch));
 					}
 					sending = false;
 					if (timed) {
@@ -2149,6 +2149,8 @@
 			}
 			return postData;
 		}
+
+        this.preparePostData = preparePostData;
 
 		function scheduleSending() {
             var _this = this;
@@ -2294,9 +2296,35 @@
 
 	log4javascript.AjaxAppender = AjaxAppender;
     /* ---------------------------------------------------------------------- */
-    function RavenAppender() {};
+    function RavenAppender (publicKey, sentryUrl) {
 
-    RavenAppender.prototype = new AjaxAppender("http://somesentryurl.com");
+        if (!publicKey) {
+            handleError("RavenAppender: Public Key must be specified in constructor");
+        }
+
+        if (!sentryUrl) {
+            handleError("RavenAppender: Sentry uri must be specified in the constructor");
+        }
+
+        if (sentryUrl.indexOf('http://') == 0) {
+            sentryUrl = sentryUrl.substring(7, sentryUrl.length);
+        }
+
+        var pubKey = publicKey;
+        var url = sentryUrl;
+
+        function initRaven() {
+            Raven.config('http://' + pubKey + '@' + url).install();
+        }
+
+        function init() {
+            initRaven();
+        }
+
+        init();
+    };
+
+    RavenAppender.prototype = new AjaxAppender("http://someurl.com");
 
     RavenAppender.prototype.layout = new HttpPostDataLayout();
 
@@ -2304,8 +2332,27 @@
         return "RavenAppender";
     };
 
+    RavenAppender.prototype.preparePostData = function (batchedLoggingEvents) {
+        // Format the logging events
+        var formattedMessages = [];
+        var currentLoggingEvent;
+        var postData = "";
+        while ((currentLoggingEvent = batchedLoggingEvents.shift())) {
+            formattedMessages.push( this.getLayout().formatWithException(currentLoggingEvent) );
+        }
+        // Create the post data string
+        if (batchedLoggingEvents.length == 1) {
+            postData = formattedMessages.join("");
+        } else {
+            postData = this.getLayout().batchHeader +
+                formattedMessages.join(this.getLayout().batchSeparator) +
+                this.getLayout().batchFooter;
+        }
+        return postData;
+    }
+
     RavenAppender.prototype.sendRequest = function (postData, successCallback) {
-        console.log(postData);
+        Raven.captureException(postData);
     };
 
     log4javascript.RavenAppender = RavenAppender;

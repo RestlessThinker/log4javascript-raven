@@ -13,8 +13,11 @@
 		<script type="text/javascript">
 			// <![CDATA[
 			var	log = log4javascript.getLogger("raven");
-    		var ravenAppender = new log4javascript.RavenAppender();
+    		var loggingLayout = new log4javascript.PatternLayout('[%-5p] [%d{HH:mm:ss}] [%c] ::: %m%n');
+    		var ravenAppender = new log4javascript.RavenAppender("somePublicKey", "http://myravenurl.com");
     		var browserConsoleAppender = new log4javascript.BrowserConsoleAppender();
+    		browserConsoleAppender.setLayout(loggingLayout);
+    		ravenAppender.setLayout(loggingLayout);
     		ravenAppender.setThreshold(log4javascript.Level.ERROR);
     		log.addAppender(browserConsoleAppender);
     		log.addAppender(ravenAppender);
