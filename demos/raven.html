@@ -8,13 +8,14 @@
 		<meta name="description" content="log4javascript, a logging framework for JavaScript based on log4j" />
 		<meta name="robots" content="all" />
 		<link rel="stylesheet" type="text/css" media="screen,print" href="../main.css" title="Default" />
+		<script type="text/javascript" src="../tracekit.js"></script>
 		<script type="text/javascript" src="../raven.js"></script>
 		<script type="text/javascript" src="../log4javascript_uncompressed.js"></script>
 		<script type="text/javascript">
 			// <![CDATA[
 			var	log = log4javascript.getLogger("raven");
     		var loggingLayout = new log4javascript.PatternLayout('[%-5p] [%d{HH:mm:ss}] [%c] ::: %m%n');
-    		var ravenAppender = new log4javascript.RavenAppender("somePublicKey", "http://myravenurl.com");
+    		var ravenAppender = new log4javascript.RavenAppender("b57223c3f9a3423fbbd24cd2741ab12b", "heroshmeam.herokuapp.com/1");
     		var browserConsoleAppender = new log4javascript.BrowserConsoleAppender();
     		browserConsoleAppender.setLayout(loggingLayout);
     		ravenAppender.setLayout(loggingLayout);
